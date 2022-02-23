@@ -123,37 +123,40 @@
         const charText = box.children[0]
         // 判断文字在对应的位置
         const curText = charText.innerText
+        let flag = ''
         if (box.classList.contains('bg-ok')) {
           updateSingleRule(chars, i, curText, 'ok')
+          flag = 'ok'
         } else if (charText.classList.contains('text-mis')) {
           // 文字对了, 但是位置不对
           updateSingleRule(chars, i, curText, 'mis')
+          flag = 'mis'
         } else {
           // 没有这个字
           updateSingleRule(chars, i, curText, 'no')
+        }
 
-          // 接着去判断声母, 韵母(前两个的不用判断了, 因为有字了已经)
-          const temp = box.children[1].children[0].children
-          const initialEle = temp[0]
-          const finalEle = temp[1]
-          const initialText = initialEle.innerText
-          const finalText = finalEle.innerText
+        // 接着去判断声母, 韵母(前两个的不用判断了, 因为有字了已经)
+        const temp = box.children[1].children[0].children
+        const initialEle = temp[0]
+        const finalEle = temp[1]
+        const initialText = initialEle.innerText
+        const finalText = finalEle.innerText
 
-          if (initialEle.classList.contains('text-ok')) {
-            updateSingleRule(initials, i, initialText, 'ok')
-          } else if (initialEle.classList.contains('text-mis')) {
-            updateSingleRule(initials, i, initialText, 'mis')
-          } else {
-            updateSingleRule(initials, i, initialText, 'no')
-          }
+        if (flag === 'ok' || initialEle.classList.contains('text-ok')) {
+          updateSingleRule(initials, i, initialText, 'ok')
+        } else if (flag === 'mis' || initialEle.classList.contains('text-mis')) {
+          updateSingleRule(initials, i, initialText, 'mis')
+        } else {
+          updateSingleRule(initials, i, initialText, 'no')
+        }
 
-          if (finalEle.classList.contains('text-ok')) {
-            updateSingleRule(finals, i, finalText, 'ok')
-          } else if (finalEle.classList.contains('text-mis')) {
-            updateSingleRule(finals, i, finalText, 'mis')
-          } else {
-            updateSingleRule(finals, i, finalText, 'no')
-          }
+        if (flag === 'ok' || finalEle.classList.contains('text-ok')) {
+          updateSingleRule(finals, i, finalText, 'ok')
+        } else if (flag === 'mis' || finalEle.classList.contains('text-mis')) {
+          updateSingleRule(finals, i, finalText, 'mis')
+        } else {
+          updateSingleRule(finals, i, finalText, 'no')
         }
       }
     }
