@@ -10,4 +10,4 @@
 ## 其他
 
 1. 该脚本纯粹是个人写着玩的，这种游戏靠脚本玩就没意思了
-2. 由于引用了[cnchar](https://theajack.gitee.io/cnchar/), 导致无法在[greasyfork](https://greasyfork.org/zh-CN)发布
+2. 由于引用了[cnchar](https://theajack.gitee.io/cnchar/), 导致无法在[greasyfork](https://greasyfork.org/zh-CN)发布，因此只能本地手动添加
