@@ -2,11 +2,9 @@
 // @name         汉兜
 // @namespace    http://tampermonkey.net/
 // @version      0.1
-// @description  try to take over the world!
-// @author       You
+// @description  汉兜游戏快速解答
+// @author       kkopite
 // @match        https://handle.antfu.me/
-// @icon         https://www.google.com/s2/favicons?domain=antfu.me
-// @grant        none
 // @require      https://cdn.jsdelivr.net/npm/cnchar/cnchar.min.js
 // @require      https://cdn.jsdelivr.net/npm/cnchar-idiom/cnchar.idiom.min.js
 // ==/UserScript==
