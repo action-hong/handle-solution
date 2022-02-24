@@ -7,6 +7,7 @@
 // @match        https://handle.antfu.me/
 // @require      https://cdn.jsdelivr.net/npm/cnchar/cnchar.min.js
 // @require      https://cdn.jsdelivr.net/npm/cnchar-idiom/cnchar.idiom.min.js
+// @require      https://cdn.jsdelivr.net/npm/hyperlist@1.0.0/dist/hyperlist.min.js
 // ==/UserScript==
 
 ;(function () {
@@ -31,10 +32,10 @@
   // 不需要音调, 音调的 spellInfo 有些字会报错 如瞋
   let tones = []
 
-  // TODO: 目前没有声调的功能
+  // 保存之前所有的猜的成语
+  let allGuesses = []
 
   // 首先获取所有成语
-
   const ALL_IDIOM = cnchar
     .idiom(['', '', '', ''], 'char')
     // ['掩耳盗铃']
@@ -69,8 +70,25 @@
     })
 
   let all = ALL_IDIOM
-  // 当前遍历的内容
-  let curPos = 0
+
+  // 显示成语的列表
+  let idiomList
+  let wrapper
+  const getConfig = () => ({
+    itemHeight: 30,
+    total: all.length,
+    generate: function (index) {
+      const origin = all[index].origin
+      const el = document.createElement('div');
+      el.setAttribute('flex', '~ align-end')
+      el.innerHTML = `
+        <p>${all[index].origin}</p>
+        <button class="btn" data-origin="${origin}">复制</button>
+      `
+      return el;
+    },
+    height: 200
+  })
 
   function guess() {
     // 获取反馈信息, 更新三个表
@@ -88,16 +106,15 @@
       )
     })
 
+    // 更新列表
+    idiomList.refresh(wrapper, getConfig())
+
     // 随机抽取一个
     const index = Math.floor(Math.random() * all.length)
     const item = all[index]
     console.log(item.origin)
     console.log(all.slice(0, 100).map((item) => item.origin))
 
-    // 输入到input上
-    const input = document.querySelector(
-      'input[type="text"][placeholder="输入四字词语..."]'
-    )
     navigator.clipboard.writeText(item.origin)
   }
 
@@ -107,13 +124,16 @@
     const elements = document.querySelectorAll(
       'div[pt4][items-center] > div[flex][gap-2]'
     )
-    if (elements.length < 2) return
+    if (elements.length < 2) return false
 
+    let right = 0
     for (let i = 0; i < elements.length - 1; i++) {
       /**
        * @type { Element }
        */
       const element = elements[i]
+
+      let currentIdiom = ''
 
       // 四个字
       for (let i = 0; i < 4; i++) {
@@ -121,10 +141,13 @@
         const charText = box.children[0]
         // 判断文字在对应的位置
         const curText = charText.innerText
+        currentIdiom += curText
         let flag = ''
         if (box.classList.contains('bg-ok')) {
           updateSingleRule(chars, i, curText, 'ok')
           flag = 'ok'
+          // 计数
+          right++
         } else if (charText.classList.contains('text-mis')) {
           // 文字对了, 但是位置不对
           updateSingleRule(chars, i, curText, 'mis')
@@ -140,6 +163,12 @@
         const finalEle = temp[1]
         const initialText = initialEle.innerText
         const finalText = finalEle.innerText
+
+        // 音调
+        const toneEle = temp[2].children[0]
+        if (toneEle.tagName === 'svg') {
+          alert('请先在设置中, 调成"数字声调"')
+        }
 
         if (flag === 'ok' || initialEle.classList.contains('text-ok')) {
           updateSingleRule(initials, i, initialText, 'ok')
@@ -157,6 +186,8 @@
           updateSingleRule(finals, i, finalText, 'no')
         }
       }
+
+      allGuesses.push(currentIdiom)
     }
   }
 
@@ -215,6 +246,7 @@
     finals = []
     chars = []
     tones = []
+    allGuesses = []
     all = ALL_IDIOM
   }
 
@@ -277,20 +309,23 @@
   }
 
   function showRules() {
+    console.log('=====================规则=====================')
     const str = `
-  let initials = ${JSON.stringify(initials)};
-  let finals = ${JSON.stringify(finals)};
-  let chars = ${JSON.stringify(chars)};
-  let tones = ${JSON.stringify(tones)};
+    let initials = ${JSON.stringify(initials)};
+    let finals = ${JSON.stringify(finals)};
+    let chars = ${JSON.stringify(chars)};
+    let tones = ${JSON.stringify(tones)};
     `
     console.log(str)
+    console.log('=====================猜的=====================')
+    console.table(allGuesses)
   }
 
   function ui() {
-    const container = document.createElement('div')
-    container.style.position = 'fixed'
-    container.style.bottom = '60px'
-    container.style.right = '10px'
+    // const container = document.createElement('div')
+    // container.style.position = 'fixed'
+    // container.style.bottom = '60px'
+    // container.style.right = '10px'
 
     const tips = [
       '请先进行设置，改成数字声调',
@@ -300,12 +335,13 @@
     div.setAttribute('md:max-w-md', '')
     div.setAttribute('ma', '')
     div.setAttribute('p4', '')
+    div.setAttribute('text-left', '')
     tips.forEach((tip) => {
       const p = document.createElement('li')
       p.innerText = tip
       div.appendChild(p)
     })
-    container.appendChild(div)
+    // container.appendChild(div)
     const btns = [
       {
         text: '猜一个',
@@ -317,16 +353,36 @@
       },
     ]
 
+    const btnContainer = document.createElement('div')
+    btnContainer.setAttribute('flex', '~ gap-4')
+
     btns.forEach((btn) => {
       const btnEle = document.createElement('button')
       btnEle.innerText = btn.text
       btnEle.classList.add('btn')
-      btnEle.classList.add('mt3')
       btnEle.onclick = btn.func
-      container.appendChild(btnEle)
+      btnContainer.appendChild(btnEle)
     })
 
-    document.body.append(container)
+
+    const parent = document.querySelector('div[p="4"] > div > div')
+    // document.body.append(container)
+    parent.appendChild(btnContainer)
+
+    wrapper = document.createElement('div')
+    wrapper.setAttribute('md:max-w-md', '')
+    wrapper.setAttribute('ma', '')
+    wrapper.setAttribute('p4', '')
+    parent.appendChild(wrapper)
+
+    wrapper.addEventListener('click',event => {
+      const target = event.currentTarget
+      const { value } = target.dataset
+      navigator.clipboard.writeText(value)
+    })
+
+    // 列表
+    idiomList = HyperList.create(wrapper, getConfig())
   }
   ui()
 })()
