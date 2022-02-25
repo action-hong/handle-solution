@@ -159,7 +159,8 @@
           updateSingleRule(chars, i, curText, 'no')
         }
 
-        // 接着去判断声母, 韵母(前两个的不用判断了, 因为有字了已经)
+        // 例如ABCA， 0位置是正确的 3是错误，此时也要处理A下面的音调，
+        // 否则到3的时候，会将该音调设置为不存在
         const temp = box.children[1].children[0].children
         const initialEle = temp[0]
         const finalEle = temp[1]
