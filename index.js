@@ -80,13 +80,14 @@
     generate: function (index) {
       const origin = all[index].origin
       const el = document.createElement('div');
-      el.setAttribute('flex', '~ align-end')
+      el.setAttribute('flex', '~ gap-4')
       el.innerHTML = `
         <p>${all[index].origin}</p>
-        <button class="btn" data-origin="${origin}">复制</button>
+        <button class="btn" data-value="${origin}">复制</button>
       `
       return el;
     },
+    width: 200,
     height: 200
   })
 
@@ -127,6 +128,7 @@
     if (elements.length < 2) return false
 
     let right = 0
+    let showToneTip = true
     for (let i = 0; i < elements.length - 1; i++) {
       /**
        * @type { Element }
@@ -165,9 +167,10 @@
         const finalText = finalEle.innerText
 
         // 音调
-        const toneEle = temp[2].children[0]
-        if (toneEle.tagName === 'svg') {
+        const toneEle = temp[2]
+        if (toneEle.children.length > 0 && showToneTip) {
           alert('请先在设置中, 调成"数字声调"')
+          showToneTip = false
         }
 
         if (flag === 'ok' || initialEle.classList.contains('text-ok')) {
@@ -322,26 +325,23 @@
   }
 
   function ui() {
-    // const container = document.createElement('div')
-    // container.style.position = 'fixed'
-    // container.style.bottom = '60px'
-    // container.style.right = '10px'
+    const parent = document.querySelector('div[p="4"] > div > div')
 
     const tips = [
       '请先进行设置，改成数字声调',
       '点击猜一下，答案会自动复制到剪切板；也可以打开控制台查看可能的结果，只显示最多100条）',
     ]
-    const div = document.createElement('ul')
-    div.setAttribute('md:max-w-md', '')
-    div.setAttribute('ma', '')
-    div.setAttribute('p4', '')
-    div.setAttribute('text-left', '')
+    const tipContainer = document.createElement('ul')
+    tipContainer.setAttribute('md:max-w-md', '')
+    tipContainer.setAttribute('ma', '')
+    tipContainer.setAttribute('p4', '')
+    tipContainer.setAttribute('text-left', '')
     tips.forEach((tip) => {
       const p = document.createElement('li')
       p.innerText = tip
-      div.appendChild(p)
+      tipContainer.appendChild(p)
     })
-    // container.appendChild(div)
+    parent.appendChild(tipContainer)
     const btns = [
       {
         text: '猜一个',
@@ -365,7 +365,6 @@
     })
 
 
-    const parent = document.querySelector('div[p="4"] > div > div')
     // document.body.append(container)
     parent.appendChild(btnContainer)
 
@@ -376,8 +375,8 @@
     parent.appendChild(wrapper)
 
     wrapper.addEventListener('click',event => {
-      const target = event.currentTarget
-      const { value } = target.dataset
+      const target = event.target
+      const value = target.dataset.value
       navigator.clipboard.writeText(value)
     })
 
