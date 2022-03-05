@@ -1,4 +1,15 @@
 {
+  "name": "handle-solution",
+  "author": "kkopite",
+  "description": "汉兜游戏快速解题",
+  "version": "0.0.3",
+  "bugs": "https://github.com/action-hong/handle-solution/issues",
+  "keywords": [
+    "汉兜",
+    "汉兜游戏",
+    "猜成语游戏"
+  ],
+  "license": "MIT",
 	"dependencies": {
 		"pinyin": "^2.11.0",
 		"uglify-js": "^3.15.2"

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         汉兜
 // @namespace    http://tampermonkey.net/
-// @version      0.2
+// @version      0.0.3
 // @description  汉兜游戏快速解答
 // @author       kkopite
 // @match        https://handle.antfu.me/
@@ -141,8 +141,8 @@
         const temp = box.children[1].children[0].children
         const initialEle = temp[0]
         const finalEle = temp[1]
-        const initialText = initialEle.innerText
-        const finalText = finalEle.innerText
+        const initialText = initialEle.innerText.replace(/\s/g, '')
+        const finalText = finalEle.innerText.replace(/\s/g, '')
 
         // 音调
         const toneEle = temp[2]
