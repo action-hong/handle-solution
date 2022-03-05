@@ -123,7 +123,7 @@
     resetRules()
     // 去获取下规则
     const elements = document.querySelectorAll(
-      'div[pt4][items-center] > div[flex][gap-2]'
+      'div[pt4][items-center] > div[flex]'
     )
     if (elements.length < 2) return false
 
@@ -135,12 +135,19 @@
        */
       const element = elements[i]
 
+      // 校验是否是成语element
+      if (element.children.length !== 4) continue
+
+
       let currentIdiom = ''
 
       // 四个字
       for (let i = 0; i < 4; i++) {
         const box = element.children[i].children[1]
         const charText = box.children[0]
+        if (!charText) {
+          break
+        }
         // 判断文字在对应的位置
         const curText = charText.innerText
         currentIdiom += curText
@@ -325,12 +332,15 @@
     console.table(allGuesses)
   }
 
+  let parent = null
   function ui() {
-    const parent = document.querySelector('div[p="4"] > div > div')
+    parent = document.querySelector('div[p="4"] > div > div')
 
     const tips = [
       '请先进行设置，改成数字声调',
       '点击猜一下，答案会自动复制到剪切板；也可以打开控制台查看可能的结果，只显示最多100条）',
+      'ps: 如果猜了好几次，可选成语没有减少的话，大概率是应用更新导致元素没匹配到，可尝试自己修改代码或者联系作者',
+      '<a href="https://github.com/action-hong/handle-solution/issues">联系作者</a>'
     ]
     const tipContainer = document.createElement('ul')
     tipContainer.setAttribute('md:max-w-md', '')
@@ -339,7 +349,7 @@
     tipContainer.setAttribute('text-left', '')
     tips.forEach((tip) => {
       const p = document.createElement('li')
-      p.innerText = tip
+      p.innerHTML = tip
       tipContainer.appendChild(p)
     })
     parent.appendChild(tipContainer)
@@ -384,5 +394,13 @@
     // 列表
     idiomList = HyperList.create(wrapper, getConfig())
   }
-  ui()
+  
+  // 父元素可能还没挂载上，所以要延迟
+  let uiTimer = setInterval(() => {
+    if (parent) {
+      clearInterval(uiTimer)
+    } else {
+      ui()
+    }
+  }, 2000);
 })()
