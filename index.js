@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         汉兜
 // @namespace    http://tampermonkey.net/
-// @version      0.0.5
+// @version      0.0.6
 // @description  汉兜游戏快速解答
 // @author       kkopite
 // @match        https://handle.antfu.me/
@@ -91,6 +91,27 @@
     navigator.clipboard.writeText(item[0])
   }
 
+  function getFinalEleText(ele) {
+    //<div mx-1px="" flex=""><div relative=""><div class="">u</div></div></div>
+    // 类似这种结构
+    // 只要获取每个子元素的第一个元素的文字
+    // 如果碰到u，则判断兄弟是不是两点即可（其实也不用）
+    let result = ''
+    for (let i = 0; i < ele.children.length; i++) {
+      const single = ele.children[i]
+      const one = single.children[0].innerText
+      if (one === 'u' && single.children.length === 2) {
+        // 到这里假定已经使用数字音调了
+        // 所以除了u还有另一个元素，那肯定是v了
+        result += 'v'
+      } else {
+        result += one
+      }
+    }
+
+    return result
+  }
+
   function updateRules() {
     resetRules()
     // 去获取下规则
@@ -157,13 +178,17 @@
           oneFinalEle = finalEle.children[0].children[0]
         }
 
-        // 注音模式下，辅音组件下有svg对应音调
-        const svgs = finalEle.querySelector('svg')
-        if (svgs && showToneTip) {
+        const svgs = finalEle.querySelectorAll('svg')
+        // svg可能是音调或者是 u上面的两点
+        // 排除两点后还有其他svg，其认为当前是音调模式
+        // <svg><circle /><circle /></svb>
+        if (showToneTip && [...svgs].filter(svg => svg.querySelectorAll('circle').length !== 2).length > 0) {
           alert('请先在设置中, 调成"数字声调"')
           showToneTip = false
         }
-        const finalText = finalEle.innerText.replace(/\s/g, '')
+        // const finalText = finalEle.innerText.replace(/\s/g, '')
+        const finalText = getFinalEleText(finalEle)
+        console.log('匹配每一个字', curText, initialText, finalText)
 
         if (initialEle) {
           if (flag === 'ok' || initialEle.classList.contains('text-ok')) {
